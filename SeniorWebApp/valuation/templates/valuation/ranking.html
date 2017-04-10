@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+    {% load static %}
+    <head>
+        <!-- bootstrap css  -->
+        <link href = "{% static "css/bootstrap.min.css" %}" rel = "stylesheet">
+        <!-- Jquery -->
+        <script type="text/javascript" src="{% static "js/jquery-3.1.1.min.js" %}"></script>
+        <!-- Bootstrap js -->
+        <script type="text/javascript" src="{% static "js/bootstrap.min.js" %}"></script>
+    </head>
+
+    <body>
+        <!-- header -->
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="col-md-offset-2">
+                    <div class="navbar-header">
+                        <!-- header logo -->
+                        <a class="navbar-brand" href="{% url "index" %}">PFCore</a>              
+                    </div>  
+                </div>
+
+                <!-- Header Search -->
+                <div class="col-sm-3 col-md-3 col-md-offset-4">
+                    <form class="navbar-form" role="search" action="{% url "search" %}">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Search" name="q">
+                            <div class="input-group-btn">
+                                <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </nav>
+
+        <!-- Menu under header -->
+        <div class="container-fluid">
+            <div class="col-md-offset-3 col-md-6 ">
+                <ul class="nav navbar-nav page-header">
+                    <li><a href="{% url "index" %}">หน้าแรก</a></li>
+                    <li><a href="a">ราคาซื้อขาย</a></li>
+                    <li><a href="{% url "ranking" rank_type="yield" %}">อันดับกองทุน</a></li>
+                    <li><a href="#">ข่าวสาร</a></li>
+                    <li><a href="#">ส่วนให้ความรู้</a></li>
+                    <li><a href="#">บทความการลงทุน</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Ranking Table -->
+        <div class="container-fluid">
+        <div class="col-lg-offset-3 col-lg-5 col-md-offset-3 col-md-5">
+            <div class="container-fluid">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>อันดับ</th>
+                            <th>ชื่อย่อ</th>
+                            <th>ชื่อกอง</th>
+                            {% if rank_type == 'yield' %}
+                                <th>เงินปันผลตอบแทน</th>
+                            {% elif rank_type == 'fair' %}
+                                <th>ส่วนต่างราคากับมูลค่าแท้จริง</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <!-- rank -->
+                    {% for each in fund_list %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td><a href="{% url "fund" name=each.short_name %}"> {{ each.short_name | upper }}</a></td>
+                            <td>{{ each.full_name }}</td>
+                            <td>{{ each.div_yield }}%</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        </div>
+        <!-- script for menu dropdown -->
+        <script>
+            $(document).ready(function(){
+                $('.dropdown-submenu a.ranking').on("click", function(e){
+                    $(this).next('ul').toggle();
+                    e.stopPropagation();
+                    e.preventDefault();
+                });
+
+                $(document).on("click", function(){
+                    $('.dropdown-menu').hide();
+                });
+            });
+        </script>
+
+    </body>
+</html>

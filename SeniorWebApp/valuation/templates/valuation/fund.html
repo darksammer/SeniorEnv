@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+    {% load static %}
+    <head>
+        <!-- bootstrap css  -->
+        <link href = "{% static "css/bootstrap.min.css" %}" rel = "stylesheet">
+        <!-- Jquery -->
+        <script type="text/javascript" src="{% static "js/jquery-3.1.1.min.js" %}"></script>
+        <!-- Highcharts -->
+        <script type="text/javascript" src="{% static "js/highcharts.js" %}"></script>
+        <!-- Bootstrap js -->
+        <script type="text/javascript" src="{% static "js/bootstrap.min.js" %}"></script>
+        <!-- Chartit -->
+        {% load chartit %}
+        {{ chart|load_charts:"value_chart" }}
+    </head>
+
+    <body>
+        <!-- header -->
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="col-md-offset-2">
+                    <div class="navbar-header">
+                        <!-- header logo -->
+                        <a class="navbar-brand" href="{% url "index" %}">PFCore</a>              
+                    </div>  
+                </div>
+
+                <!-- Header Search -->
+                <div class="col-sm-3 col-md-3 col-md-offset-4">
+                    <form class="navbar-form" role="search" action="{% url "search" %}">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Search" name="q">
+                            <div class="input-group-btn">
+                                <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </nav>
+
+        <!-- Menu under header -->
+        <div class="container-fluid">
+            <div class="col-md-offset-3">
+                <ul class="nav navbar-nav page-header">
+                    <li><a href="{% url "index" %}">หน้าแรก</a></li>
+                    <li><a href="a">ราคาซื้อขาย</a></li>
+                    <li><a href="{% url "ranking" rank_type="yield" %}">อันดับกองทุน</a></li>
+                    <li><a href="#">ข่าวสาร</a></li>
+                    <li><a href="#">ส่วนให้ความรู้</a></li>
+                    <li><a href="#">บทความการลงทุน</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="container">
+            <div class="row">
+                <div class="col-md-offset-1">
+                    <!-- name -->
+                    <h1><small>{{ name|upper }} : {{ fund_data.full_name }}</small></h1>
+                </div> 
+            </div>
+            <!-- graph -->
+            <div class="col-md-8 col-md-offset-1">
+                <div id="value_chart">
+                </div>
+            </div>
+
+            <!-- Fund detail -->
+            <div class="col-md-4 col-md-offset-1">
+                <font size="4">รายละเอียดกองทุน</font><br>
+                <table class="table table-hover">
+                    <tbody>
+                        <tr>
+                            <td>ประเภทกอง</td>
+                            <td class="active" align="center">{{ fund_data.fund_type }}</td>
+                        </tr>
+                        <tr>
+                            <td>ประเภทอสังหาริมทรัพย์ที่ถือครอง</td>
+                            <td class="active" align="center">{{ fund_data.property_type }}</td>
+                        </tr>
+                        <tr>
+                            <td>ปีที่เข้า IPO</td>
+                            <td class="active" align="center">{{ fund_data.ipo_date }}</td>
+                        </tr>
+                        <tr>
+                            <td>จำนวนครั้งจ่ายปันผลต่อปี</td>
+                            <td class="active" align="center">{{ fund_data.dividend_payout_amount_per_year }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+            <div class="col-md-3 col-md-offset-1">
+                <font size="4">Signal</font><br>
+                <!-- Recommend -->
+                <table class="table">
+                    <tbody>
+                        <!-- IPO Signal -->
+                        {% if age < 3 %}
+                            <tr>
+                                <td>อายุกอง</td>
+                                <td class="danger">Recent IPO</td>
+                            </tr>
+                        {% endif %}
+                        <!-- Dividend -->
+                            <tr>
+                                <td>Dividend Yield</td>
+                                {% if chart_data.0.yield_status == "Consistent" %}
+                                    <td class="success">{{chart_data.0.yield_status}}</td>
+                                {% elif chart_data.0.yield_status == "Declined" %}
+                                    <td class="danger">{{chart_data.0.yield_status}}</td>
+                                {% else %}
+                                    <td class="warning">{{chart_data.0.yield_status}}</td>
+                                {% endif %}
+                            </tr>
+
+                            <tr>
+                                <td>จำนวนครั้งการจ่ายปันผล</td>
+                                {% if chart_data.0.payout_status == "Consistent" or chart_data.0.payout_status == "Growth" %}
+                                    <td class="success">{{chart_data.0.payout_status}}</td>
+                                {% else %}
+                                    <td class="danger">{{chart_data.0.payout_status}}</td>
+                                {% endif %}
+                            </tr>
+
+                            <tr>
+                                <td>รายได้ค่าเช่า</td>
+                                {% if chart_data.0.rental_status == "Growth" or chart_data.0.rental_status == "Consistent" %}
+                                    <td class="success">{{chart_data.0.rental_status}}</td>
+                                {% elif chart_data.0.rental_status == "Fluctuation" or chart_data.0.rental_status == "No data to compare" %}
+                                    <td class="warning">{{chart_data.0.rental_status}}</td>
+                                {% else %}
+                                    <td class="danger">{{chart_data.0.rental_status}}</td>
+                                {% endif %}
+                            </tr>
+
+                            <tr>
+                                <td>กำไรสะสม</td>
+                                {% if chart_data.0.retained_status == "Growth" or chart_data.0.retained_status == "Consistent" %}
+                                    <td class="success">{{chart_data.0.retained_status}}</td>
+                                {% elif chart_data.0.retained_status == "Fluctuation" or chart_data.0.retained_status == "No data to compare" %}
+                                    <td class="warning">{{chart_data.0.retained_status}}</td>
+                                {% else %}
+                                    <td class="danger">{{chart_data.0.retained_status}}</td>
+                                {% endif %}
+                            </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- script for menu dropdown -->
+        <script>
+            $(document).ready(function(){
+                $('.dropdown-submenu a.ranking').on("click", function(e){
+                    $(this).next('ul').toggle();
+                    e.stopPropagation();
+                    e.preventDefault();
+                });
+
+                $(document).on("click", function(){
+                    $('.dropdown-menu').hide();
+                });
+            });
+        </script>
+
+    </body>
+</html>
